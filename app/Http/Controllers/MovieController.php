@@ -53,8 +53,9 @@ class MovieController extends Controller
     }
 
     // LIST PAGE
-    public function index()
+    public function index(Request $request)
     {
+        $genre = $request->query('genre');
         return view('movies.index', [
             'movies' => $this->movies()
         ]);
