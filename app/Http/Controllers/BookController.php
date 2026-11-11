@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Log;
 
 class BookController extends Controller
 {
-    // Display all books
+    // Display books with search, filters, sorting, and pagination
     public function index(Request $request)
     {
         DB::flushQueryLog();
@@ -18,25 +18,68 @@ class BookController extends Controller
 
         $query = Book::query();
 
-        $genre = $request->query('genre');
-        $year = $request->query('year');
+        // Search by title or author
+        $search = $request->query('search');
 
-        if ($genre) {
+        if ($search !== null && $search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('author', 'like', "%{$search}%");
+            });
+        }
+
+        // Filter by genre
+        $genre = $request->query('genre');
+
+        if ($genre !== null && $genre !== '') {
             $query->where('genre_id', $genre);
         }
 
-        if ($year) {
+        // Filter by year
+        $year = $request->query('year');
+
+        if ($year !== null && $year !== '') {
             $query->where('year', $year);
         }
 
-        $books = $query->with('genre')->get();
+        // Filter by featured status
+        $featured = $request->query('featured');
 
+        if ($featured !== null && $featured !== '') {
+            $query->where('is_featured', $featured === '1');
+        }
+
+        // Allowed sorting columns
+        $allowedSorts = ['title', 'year'];
+
+        // Validate the requested sort value
+        $requestedSort = $request->query('sort');
+
+        // Default to title if the sort value is invalid
+        $sort = in_array($requestedSort, $allowedSorts, true)
+            ? $requestedSort
+            : 'title';
+
+        // Sort, load genre, and paginate
+        $books = $query->with('genre')
+                       ->orderBy($sort)
+                       ->paginate(5)
+                       ->withQueryString();
+
+        // Get genres for dropdown
+        $genres = Genre::orderBy('name')->get();
+
+        // Count database queries
         $queryCount = count(DB::getQueryLog());
 
         return view('books.index', [
             'books' => $books,
+            'genres' => $genres,
             'genre' => $genre,
             'year' => $year,
+            'search' => $search,
+            'featured' => $featured,
+            'sort' => $sort,
             'queryCount' => $queryCount,
         ]);
     }
@@ -114,7 +157,7 @@ class BookController extends Controller
     // Delete a book
     public function destroy(Book $book)
     {
-        // Stop deletion if this is the last book in its genre
+        // Prevent deleting the last book in its genre
         abort_if(
             $book->genre()->withCount('books')->first()->books_count === 1,
             403

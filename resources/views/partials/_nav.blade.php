@@ -1,15 +1,42 @@
-<nav class="mb-4">
 
-    <a href="{{ route('books.index') }}" class="btn btn-outline-primary me-2">
-        Book List
-    </a>
+<nav class="navbar navbar-expand-lg bg-dark" data-bs-theme="dark">
+    <div class="container-fluid">
 
-    <a href="{{ route('books.featured') }}" class="btn btn-outline-success me-2">
-        Featured Book
-    </a>
+        <a class="navbar-brand" href="{{ route('home') }}">
+            Book Portal
+        </a>
 
-    <a href="{{ route('books.filter') }}" class="btn btn-outline-dark">
-        Filter Books
-    </a>
+        <!-- Hamburger Toggle Button -->
+        <button class="navbar-toggler" type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#mainNav"
+                aria-controls="mainNav"
+                aria-expanded="false"
+                aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
+        <!-- Collapsible Navigation Menu -->
+        <div class="collapse navbar-collapse" id="mainNav">
+            <ul class="navbar-nav ms-auto">
+
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}"
+                       href="{{ route('home') }}">
+                        Home
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('books.*') ? 'active' : '' }}"
+                       href="{{ route('books.index') }}">
+                        Books
+                    </a>
+                </li>
+
+            </ul>
+        </div>
+
+    </div>
 </nav>
+

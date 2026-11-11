@@ -1,33 +1,37 @@
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>@yield('title', 'Book Portal')</title>
 
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
-
 </head>
 
 <body class="bg-light">
 
-<div class="container mt-5">
+    <!-- Navigation Bar -->
+    @include('partials._nav')
 
-    <h1 class="display-4 fw-bold">Book Portal</h1>
+    <div class="container mt-5">
 
-    <p class="text-secondary">
-        Prepared by: John Hermie T. Tatel
-    </p>
+        <!-- Success Message -->
+        @if (session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+        @endif
 
-    {{-- Success message --}}
-    @if (session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
-        </div>
-    @endif
+        @yield('content')
 
-    @yield('content')
+    </div>
 
-</div>
+    <!-- Bootstrap JavaScript Bundle (Required for Navbar Toggle) -->
+   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>
