@@ -1,4 +1,3 @@
-
 @extends('layouts.app')
 
 @section('title', 'Book List')
@@ -87,10 +86,12 @@
 
         <h2 class="books-title">Book List</h2>
 
-        <a href="{{ route('books.create') }}"
-           class="btn btn-success btn-lg">
-            + Add New Book
-        </a>
+        @auth
+            <a href="{{ route('books.create') }}"
+               class="btn btn-success btn-lg">
+                + Add New Book
+            </a>
+        @endauth
 
     </div>
 
@@ -101,7 +102,6 @@
 
             {{-- Search --}}
             <div class="col-md-6">
-
                 <input
                     type="text"
                     name="search"
@@ -109,32 +109,25 @@
                     placeholder="Search by title or author..."
                     value="{{ request('search') }}"
                 >
-
             </div>
 
             {{-- Genre Dropdown --}}
             <div class="col-md-3">
-
                 <select name="genre" class="form-select">
-
                     <option value="">All Genres</option>
 
                     @foreach ($genres as $item)
-
                         <option value="{{ $item->id }}"
                             @selected(request('genre') == $item->id)>
                             {{ $item->name }}
                         </option>
-
                     @endforeach
 
                 </select>
-
             </div>
 
             {{-- Featured Dropdown --}}
             <div class="col-md-3">
-
                 <select name="featured" class="form-select">
 
                     <option value="">All Books</option>
@@ -150,7 +143,6 @@
                     </option>
 
                 </select>
-
             </div>
 
         </div>
@@ -243,7 +235,10 @@
                     <th>Author</th>
                     <th>Year</th>
                     <th>Genre</th>
-                    <th>Actions</th>
+
+                    @auth
+                        <th>Actions</th>
+                    @endauth
                 </tr>
             </thead>
 
@@ -270,37 +265,40 @@
                             {{ $book->genre->name ?? 'Unknown' }}
                         </td>
 
-                        <td>
+                        @auth
+                            <td>
 
-                            <a href="{{ route('books.edit', $book) }}"
-                               class="btn btn-primary btn-sm">
-                                Edit
-                            </a>
+                                <a href="{{ route('books.edit', $book) }}"
+                                   class="btn btn-primary btn-sm">
+                                    Edit
+                                </a>
 
-                            <form
-                                action="{{ route('books.destroy', $book) }}"
-                                method="POST"
-                                class="d-inline"
-                                onsubmit="return confirm('Delete this book?')">
+                                <form
+                                    action="{{ route('books.destroy', $book) }}"
+                                    method="POST"
+                                    class="d-inline"
+                                    onsubmit="return confirm('Delete this book?')">
 
-                                @csrf
-                                @method('DELETE')
+                                    @csrf
+                                    @method('DELETE')
 
-                                <button type="submit"
-                                        class="btn btn-danger btn-sm">
-                                    Delete
-                                </button>
+                                    <button type="submit"
+                                            class="btn btn-danger btn-sm">
+                                        Delete
+                                    </button>
 
-                            </form>
+                                </form>
 
-                        </td>
+                            </td>
+                        @endauth
 
                     </tr>
 
                 @empty
 
                     <tr>
-                        <td colspan="6" class="text-center">
+                        <td colspan="{{ auth()->check() ? 6 : 5 }}"
+                            class="text-center">
                             No books found.
                         </td>
                     </tr>
