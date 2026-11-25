@@ -1,3 +1,4 @@
+
 @extends('layouts.app')
 
 @section('title', 'Book List')
@@ -86,14 +87,21 @@
 
         <h2 class="books-title">Book List</h2>
 
-        @auth
+        @can('create', App\Models\Book::class)
             <a href="{{ route('books.create') }}"
                class="btn btn-success btn-lg">
                 + Add New Book
             </a>
-        @endauth
+        @endcan
 
     </div>
+
+    {{-- Read-only notice --}}
+    @cannot('create', App\Models\Book::class)
+        <div class="alert alert-info">
+            You have read-only access to the Book Portal.
+        </div>
+    @endcannot
 
     {{-- Search and Filters --}}
     <form action="{{ route('books.index') }}" method="GET" class="mb-4">
@@ -236,9 +244,9 @@
                     <th>Year</th>
                     <th>Genre</th>
 
-                    @auth
+                    @can('create', App\Models\Book::class)
                         <th>Actions</th>
-                    @endauth
+                    @endcan
                 </tr>
             </thead>
 
@@ -265,40 +273,43 @@
                             {{ $book->genre->name ?? 'Unknown' }}
                         </td>
 
-                        @auth
+                        @can('create', App\Models\Book::class)
                             <td>
 
-                                <a href="{{ route('books.edit', $book) }}"
-                                   class="btn btn-primary btn-sm">
-                                    Edit
-                                </a>
+                                @can('update', $book)
+                                    <a href="{{ route('books.edit', $book) }}"
+                                       class="btn btn-primary btn-sm">
+                                        Edit
+                                    </a>
+                                @endcan
 
-                                <form
-                                    action="{{ route('books.destroy', $book) }}"
-                                    method="POST"
-                                    class="d-inline"
-                                    onsubmit="return confirm('Delete this book?')">
+                                @can('delete', $book)
+                                    <form
+                                        action="{{ route('books.destroy', $book) }}"
+                                        method="POST"
+                                        class="d-inline"
+                                        onsubmit="return confirm('Delete this book?')">
 
-                                    @csrf
-                                    @method('DELETE')
+                                        @csrf
+                                        @method('DELETE')
 
-                                    <button type="submit"
-                                            class="btn btn-danger btn-sm">
-                                        Delete
-                                    </button>
+                                        <button type="submit"
+                                                class="btn btn-danger btn-sm">
+                                            Delete
+                                        </button>
 
-                                </form>
+                                    </form>
+                                @endcan
 
                             </td>
-                        @endauth
+                        @endcan
 
                     </tr>
 
                 @empty
 
                     <tr>
-                        <td colspan="{{ auth()->check() ? 6 : 5 }}"
-                            class="text-center">
+                        <td colspan="6" class="text-center">
                             No books found.
                         </td>
                     </tr>

@@ -1,23 +1,34 @@
- LA14 – Locking the Front Door
- F1. Authentication and Authorisation
+# LA15 – Deciding Who May (Roles and Policies)
 
-In my Book Portal, authentication lets the user register and login so the system knows who is using it. Authorisation is still what I need to learn next meeting, because it decides what each user is allowed to do after logging in.
+## Part F – Reflection Questions
 
-F2. Session Regeneration
+### 1. How is Lesson 14 different from Lesson 15? Where is the first question answered?
 
-After I login successfully, I use `session()->regenerate()` to give my session a new ID. If I skip this, someone might reuse an old session ID and access my account through a session fixation attack.
+Lesson 14 answers the question "Who are you?" through authentication, which verifies the identity of the user during login. Lesson 15 answers "What may you do?" through authorization using roles and policies. In this project, the LoginController handles authentication, while the BookPolicy determines which actions an authenticated user may perform.
 
- F3. Same Login Error Message
+### 2. Why can the role be changed through Tinker even though it is not included in the User model's $fillable array?
 
-In my Book Portal, I use the same error message if the password is wrong or the email is not registered. This is better because strangers will not know if an email is really registered in my users table.
+The role can be changed through Tinker because I used direct property assignment, such as `$u->role = 'admin'`, followed by `$u->save()`. The `$fillable` property protects against mass assignment, but it does not prevent direct assignment to a model property.
 
- F4. Public and Protected Book Pages
+### 3. What is the difference between a normal user receiving a 403 error and a guest being redirected to the login page?
 
-I keep the books list and book details public so visitors can still view the books even if they are not logged in. But adding, editing, updating, and deleting books are protected because only logged-in users should be able to change my book records.
+A normal user is already authenticated, but the BookPolicy does not allow that user to create, update, or delete books, so Laravel returns a 403 Forbidden response. A guest is not authenticated, so the authentication middleware redirects the guest to the login page before the protected action can be accessed.
 
- F5. Hiding Buttons Is Not Enough
+### 4. Why can guests still view the book list and individual book details?
 
-I hide the Add, Edit, and Delete buttons when someone is not logged in, but this does not fully protect the pages because they can still type the URL directly in the browser. The `auth` middleware is what really blocks them and sends them to the login page.
- F6. The Login Route Name
+The book list and individual book details are intentionally available for public viewing. The index and show actions do not require authentication, allowing guests and registered users to browse the books without being able to manage them.
 
-In my screenshot 20, I changed the login route name to `signin` and Laravel showed `Route [login] not defined.` This happens because the `auth` middleware looks for a route named exactly `login` when a guest tries to open a protected page.
+### 5. Why should the controller and Blade views use the same policy instead of separate role checks?
+
+Using the same BookPolicy keeps authorization rules consistent throughout the application. The controller uses `Gate::authorize()` to protect actions on the server, while Blade uses `@can` and `@cannot` to control which buttons and messages are displayed. This avoids duplicating role-checking conditions that could become inconsistent.
+
+### 6. What does SESSION_LIFETIME measure, and why is there no warning before a session expires?
+
+SESSION_LIFETIME measures how many minutes a session can remain inactive before it expires. It does not measure the total time a user has been logged in. Laravel detects the expired session when the browser makes another request, which is why the user is redirected to the login page without receiving an advance warning.
+
+## Project Information
+
+**Activity:** LA15 – Deciding Who May (Roles and Policies)  
+**Framework:** Laravel 12  
+**Database:** SQLite  
+**Repository:** https://github.com/jhttatel-sketch/-itrackb4-la15-tatel-johnhermie
